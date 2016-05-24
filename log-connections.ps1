@@ -1,39 +1,40 @@
-# $established = $activeTcp | select-string 'established'
-# $listening = $activeTcp | select-string 'listening'
-# $wait = $activeTcp | select-string '_wait'
-
-# Write-Host 'Time:' $current -ForegroundColor yellow
-# Write-Host 'ESTABLISHED:'.PadRight(20) $established.count
-# Write-Host 'LISTENING:'.PadRight(20) $listening.count
-# Write-Host '*_WAIT:'.PadRight(20) $wait.count
-# Write-Host 'TCP Connections:'.PadRight(20) $activeTcp.count
-# Write-Host "---------------"
-
-
-function Write-Stat([string]$value)
+function Write-Stat([object]$fs, [string]$value)
 {
-    $current = Get-Date
-    Write-Host $current.ToString().PadRight(24) -NoNewLine
-    Write-Host $value.ToString().PadLeft(5) -ForegroundColor yellow
+    $current = get-date
+    $line = $current.ToString().PadRight(24)
+    $line += $value.ToString().PadLeft(5)
+    write-host $line -ForegroundColor yellow
+
+    $fs.WriteLine($line)
 }
 
-function Write-Header()
+function Write-Header([object]$fs)
 {
-    Write-Host 'Time'.PadRight(24) 'Active TCP'
+    $line = 'Time'.PadRight(24) + 'Active TCP'
+    write-host $line
+    $fs.WriteLine($line)
 }
+
+# open file
+$path = (get-item -path ".\netstat.log").FullName
+$fs = [System.IO.StreamWriter] $path
 
 # just headers
-write-header
+write-header($fs)
 
 # set interval and timeout
-$timeout = new-timespan -minutes 1
+$timeout = new-timespan -seconds 10
 $timer = [diagnostics.stopwatch]::StartNew()
 
 # logging..
 while ($timer.elapsed -lt $timeout){
     $activeTcp = (netstat -ano | select-string 'TCP')
-    write-stat($activeTcp.count)
+    # $listening = $activeTcp | select-string 'listening'
+    # $wait = $activeTcp | select-string '_wait'
+
+    write-stat $fs $activeTcp.count
     start-sleep -seconds 5
 }
 
+$fs.close()
 write-host "Done"
