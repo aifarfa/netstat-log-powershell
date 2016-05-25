@@ -1,3 +1,8 @@
+param(
+    [int]$interval = 60,
+    [int]$timeout = 60
+)
+
 function Write-Stat([object]$fs, [string]$value)
 {
     $current = get-date
@@ -23,17 +28,17 @@ $fs = [System.IO.StreamWriter] $path
 write-header($fs)
 
 # set interval and timeout
-$timeout = new-timespan -seconds 10
+$timespan = new-timespan -minutes $timeout
 $timer = [diagnostics.stopwatch]::StartNew()
 
 # logging..
-while ($timer.elapsed -lt $timeout){
+while ($timer.elapsed -lt $timespan){
     $activeTcp = (netstat -ano | select-string 'TCP')
     # $listening = $activeTcp | select-string 'listening'
     # $wait = $activeTcp | select-string '_wait'
 
     write-stat $fs $activeTcp.count
-    start-sleep -seconds 5
+    start-sleep -seconds $interval
 }
 
 $fs.close()
