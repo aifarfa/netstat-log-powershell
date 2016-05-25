@@ -4,13 +4,9 @@ function Get-Usages ()
 {
     $list = New-Object System.Collections.HashTable
 
-    $tcpStat = netstat -ano | select-string -pattern 'TCP\s+(.+)\:(\d+)\s+(.+)\:(\d+)\s+(\w+)\s+(\d+)'
-    $tcpStat | foreach-object {
+    $tcpStat = netstat -ano | Select-String -Pattern 'TCP\s+(.+)\:(\d+)\s+(.+)\:(\d+)\s+(\w+)\s+(\d+)'
+    $tcpStat | Foreach-Object {
         $match = $_.Matches[0]
-        # $localAddr = $match.groups[1].value
-        # $localPort = $match.groups[2].value
-        # $remoteAddr = $match.groups[3].value
-        # $remotePort = $match.groups[4].value
         $state = $match.groups[5].value
         $id = $match.groups[6].value
 
@@ -21,13 +17,12 @@ function Get-Usages ()
         }
         else    #new process
         {
-            $item = New-Process $id $state
+            $item = New-Process $id
             $item = Add-Usage $item $state
             $list.Add($id,$item)
         }
     }
-
-    write-host 'Total:' $tcpStat.count -ForegroundColor cyan
+    Write-Host 'Total:' $tcpStat.Count -ForegroundColor cyan
 
     return $list.Values
 }
@@ -65,6 +60,13 @@ function Add-Usage([object]$item, [string]$state)
 }
 
 # start collect usage statistic.
+$file = '.\usage.log'
+Get-Date -Format 'yyyy-MMM-dd hh:mm:ss z' >> $file
 
-$out = Get-Usages | Sort-Object -Property Total -Descending | Format-Table -AutoSize
-Write-Output $out
+$output = Get-Usages | Sort-Object -Property Total -Descending | Format-Table -AutoSize
+$output | Out-File $file -Append -Encoding utf8
+Write-Output $output
+
+# cleanup
+Remove-Variable file
+Remove-Variable output
