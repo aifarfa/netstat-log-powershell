@@ -3,7 +3,7 @@ param(
     [int]$timeout = 60
 )
 
-function Run()
+function Run-Interval()
 {
     # set interval and timeout
     $timespan = new-timespan -minutes $timeout
@@ -29,7 +29,6 @@ function Write-Stat([string]$value)
 {
     $now = get-date
     $line = $now.ToString().PadRight(24) + $value.ToString().PadLeft(5)
-    # $line >> $path
     write-host $line
     append-log $line
 }
@@ -37,13 +36,14 @@ function Write-Stat([string]$value)
 function Append-Log([string]$line)
 {
     $path = (get-item -path ".\netstat.log").FullName
-    $file = New-Object IO.FileStream $path, 'Append', 'Write', 'Read'
-    $fs = New-Object IO.StreamWriter $file
-    $fs.WriteLine($line)
-    $fs.Close()
+    # $file = New-Object IO.FileStream $path, 'Append', 'Write', 'Read'
+    # $fs = New-Object IO.StreamWriter $file
+    # $fs.WriteLine($line)
+    # $fs.Close()
+
+    $line | Out-File $path -Append -Encoding utf8
 }
 
-# just headers
-write-host start monitoring netstat every $interval sec. for $timeout minutes.. -ForegroundColor green
-Run
-write-host "Done." -ForegroundColor green
+Write-Host start monitoring netstat every $interval sec. for $timeout minutes.. -ForegroundColor green
+Run-Interval
+Write-Host "Done." -ForegroundColor green
