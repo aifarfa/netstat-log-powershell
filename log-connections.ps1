@@ -3,43 +3,47 @@ param(
     [int]$timeout = 60
 )
 
-function Write-Stat([object]$fs, [string]$value)
+function Run()
 {
-    $current = get-date
-    $line = $current.ToString().PadRight(24)
-    $line += $value.ToString().PadLeft(5)
-    write-host $line -ForegroundColor yellow
+    # set interval and timeout
+    $timespan = new-timespan -minutes $timeout
+    $timer = [diagnostics.stopwatch]::StartNew()
 
-    $fs.WriteLine($line)
+    # logging..
+    write-header
+    while ($timer.elapsed -lt $timespan){
+        $activeTcp = (netstat -ano | select-string 'TCP')
+        write-stat $activeTcp.count
+        start-sleep -seconds $interval
+    }
 }
 
-function Write-Header([object]$fs)
+function Write-Header()
 {
     $line = 'Time'.PadRight(24) + 'Active TCP'
     write-host $line
-    $fs.WriteLine($line)
+    append-log $line
 }
 
-# open file
-$path = (get-item -path ".\netstat.log").FullName
-$fs = [System.IO.StreamWriter] $path
+function Write-Stat([string]$value)
+{
+    $now = get-date
+    $line = $now.ToString().PadRight(24) + $value.ToString().PadLeft(5)
+    # $line >> $path
+    write-host $line
+    append-log $line
+}
+
+function Append-Log([string]$line)
+{
+    $path = (get-item -path ".\netstat.log").FullName
+    $file = New-Object IO.FileStream $path, 'Append', 'Write', 'Read'
+    $fs = New-Object IO.StreamWriter $file
+    $fs.WriteLine($line)
+    $fs.Close()
+}
 
 # just headers
-write-header($fs)
-
-# set interval and timeout
-$timespan = new-timespan -minutes $timeout
-$timer = [diagnostics.stopwatch]::StartNew()
-
-# logging..
-while ($timer.elapsed -lt $timespan){
-    $activeTcp = (netstat -ano | select-string 'TCP')
-    # $listening = $activeTcp | select-string 'listening'
-    # $wait = $activeTcp | select-string '_wait'
-
-    write-stat $fs $activeTcp.count
-    start-sleep -seconds $interval
-}
-
-$fs.close()
-write-host "Done"
+write-host start monitoring netstat every $interval sec. for $timeout minutes.. -ForegroundColor green
+Run
+write-host "Done." -ForegroundColor green
