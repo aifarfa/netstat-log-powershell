@@ -61,7 +61,7 @@ function Add-Usage([object]$item, [string]$state)
 
 # start collect usage statistic.
 $file = '.\usage.log'
-Get-Date -Format 'yyyy-MMM-dd hh:mm:ss z' >> $file
+Get-Date -Format 'yyyy-MMM-dd hh:mm:ss z' | Out-File $file -Append -Encoding utf8
 
 $output = Get-Usages | Sort-Object -Property Total -Descending | Format-Table -AutoSize
 $output | Out-File $file -Append -Encoding utf8

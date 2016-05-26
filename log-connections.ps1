@@ -35,7 +35,7 @@ function Write-Stat([string]$value)
 
 function Append-Log([string]$line)
 {
-    $path = (get-item -path ".\netstat.log").FullName
+    $path = '.\netstat.log'
     # $file = New-Object IO.FileStream $path, 'Append', 'Write', 'Read'
     # $fs = New-Object IO.StreamWriter $file
     # $fs.WriteLine($line)
