@@ -2,12 +2,14 @@
 
 use to investigate TCP/IP port exhaustion
 
-## usage: 
+## usage:
 
 to monitor total active TCP/IP connection by interval time
 
-  `PS > .\log-connections.ps1`
+  `.\log-connections.ps1 [-interval <int>] [-timeout <int>]`
 
 to capture TCP port usage group by PID(process id) and state.
 
-  `PS > .\log-port-usage.ps1`
+  `.\log-port-usage.ps1`
+
+![log-port-usage.ps1](/../screenshot/screenshot/port-usage.png?raw=true "log-port-usage")
