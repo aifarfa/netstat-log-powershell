@@ -11,3 +11,5 @@ to monitor total active TCP/IP connection by interval time
 to capture TCP port usage group by PID(process id) and state.
 
   `.\log-port-usage.ps1`
+
+![log-port-usage.ps1](/../screenshot/screenshot/port-usage.png?raw=true "log-port-usage")
