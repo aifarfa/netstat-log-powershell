@@ -41,7 +41,7 @@ function Append-Log([string]$line)
     # $fs.WriteLine($line)
     # $fs.Close()
 
-    $line | Out-File $path -Append -Encoding utf8
+    $line | Out-File $path -Append -Encoding ascii
 }
 
 Write-Host start monitoring netstat every $interval sec. for $timeout minutes.. -ForegroundColor green
