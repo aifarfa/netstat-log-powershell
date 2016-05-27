@@ -26,14 +26,17 @@ function Write-Log([object] $info)
 }
 
 # check if threshold is exceeded..
-$samples = Get-HandleCount $process | Where-Object {$_.CookedValue -gt $threshold}
+[array]$found = (Get-HandleCount $process | where {$_.CookedValue -gt $threshold})
 
-if($samples.Count -eq 0)
+if($found.length -gt 0)
 {
-  Write-Host 'OK, seems good.' -foregroundcolor green
+  Write-Host 'Handle Count threshold is exceeded! >' $threshold -foregroundcolor DarkRed
+  Log-Counter $found
 }
 else
 {
-  Write-Host 'Handle Count threshold is exceeded!' -foregroundcolor DarkRed
-  Log-Counter $samples
+  Write-Host 'OK, seems good.' -foregroundcolor green
 }
+
+# cleanup
+Remove-Variable found
