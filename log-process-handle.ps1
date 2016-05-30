@@ -1,5 +1,5 @@
 param(
-  [int]$threshold = 1000,
+  [int]$threshold = 5000,
   [string]$file = '.\handle.log',
   [string]$process = 'svchost*'
 )
